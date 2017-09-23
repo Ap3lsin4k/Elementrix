@@ -9,7 +9,8 @@ const int W = 15;
 const int size = 45;
 int count = 0;
 int i = 0;
-int X= 20, Y=525;
+bool isObjectTransportToSetka = false;
+bool isBuferEmpty = true;
 
 Texture texture, TecRezustor, WireTex;
 
@@ -60,6 +61,7 @@ public:
 		sprite[i].setTexture(texture);
 		sprite[i].setScale(1, 1);
 		sprite[i].setPosition(startCoor[i].x, startCoor[i].y);
+		isBuferEmpty = false;
 
 		for (int j = 0; j <= 165; j++)
 		{
@@ -73,7 +75,7 @@ public:
 		{
 			if (sprite[j].getGlobalBounds().contains(pixelPos.x, pixelPos.y))//
 			{
-				std::cout << "isClicked!\t";//auaiaei a eiinieu niiauaiea ia yoii
+		//		std::cout << "isClicked!\t";//auaiaei a eiinieu niiauaiea ia yoii
 				dX[j] = pixelPos.x - sprite[j].getPosition().x;//aaeaai ?aciinou ia?ao iiceoeae eo?ni?a e ni?aeoa.aey ei??aeoe?iaee ia?aoey
 				dY[j] = pixelPos.y - sprite[j].getPosition().y;//oi?a naiia ii ea?aeo
 				isMove[j] = true;//ii?ai aaeaaou ni?aeo		
@@ -96,10 +98,14 @@ public:
 					if (IntRect(countX, countY, size, size).contains(pixelPos.x, pixelPos.y) &&
 						isClicked[j])
 					{
+						if(startCoor[j].x == 20 && startCoor[j].y == 525) isBuferEmpty = true; //bufer pusteyet
+						else isBuferEmpty = false;
 
 						startCoor[j].x = countX;
 						startCoor[j].y = countY;
 						isClicked[j] = false;
+						isObjectTransportToSetka = true; //yakcho sprite peremistuvsya z bufera
+						
 						break;
 					}
 
@@ -110,21 +116,20 @@ public:
 
 	void update(Vector2i pixelPos)
 	{
+		std::cout << i;
 		for (int j = 0; j <= i; j++)
 		{
 			if (isMove[j])
 			{
 
-				sprite[j].setColor(Color::Yellow);//e?anei ni?aeo a ?iaoee 
-				sprite[j].setPosition(pixelPos.x - dX[j] + j*20, pixelPos.y - dY[j] + j*20);//aaeaaai ii Y
+				sprite[j].setColor(Color::Yellow);
+				sprite[j].setPosition(pixelPos.x - dX[j] + j, pixelPos.y - dY[j] + j);
 																 //p.sprite.setPosition(pos.x - dX, pos.y - dY);//ii?ii e oae iaienaou,anee o aan iaoo o e o a eeanna ea?iea
 			}
 			
 			else
 			{
-
 				sprite[j].setPosition(startCoor[j].x, startCoor[j].y);
-
 			}
 		}
 	}
@@ -141,24 +146,24 @@ ELEMENT lampa(image);
 
 int main()
 {
-	RenderWindow window(sf::VideoMode(800, 600), "Drag & Drop");
+	RenderWindow window(sf::VideoMode(800, 600), "Drag & Drop");//create window
 
-	initialization();
+	initialization(); // initi. texture
 
 
-	ELEMENT lampa;// = new ELEMENT[300];
+	ELEMENT lampa;// = new ELEMENT[300]; ///
 	//	ELEMENT rezustor(TecRezustor);
 	//	ELEMENT wire(WireTex);
 
-	Vector2i pixelPos;
+	Vector2i pixelPos;		// mouse Position
 	//test
-	RectangleShape rectangle(Vector2f(45, 45));
+	RectangleShape rectangle(Vector2f(45, 45));		//setka dlya krasotu
 	///test
 
-	while (window.isOpen())
+	while (window.isOpen())							//main cukl
 	{
 
-		pixelPos = Mouse::getPosition(window);
+		pixelPos = Mouse::getPosition(window);		
 
 		Event event;
 		while (window.pollEvent(event))
@@ -167,22 +172,29 @@ int main()
 				window.close();
 
 			//LMB Pressed
-			if (event.type == Event::MouseButtonPressed && event.mouseButton.button == Mouse::Left)
+			if (event.type == Event::MouseButtonPressed && event.mouseButton.button == Mouse::Left)	
 			{
-				lampa.MousePressed(pixelPos);
+				lampa.MousePressed(pixelPos);				//call F in class
 				//				rezustor.MousePressed(pixelPos);
 				//				wire.MousePressed(pixelPos);
 			}
 
 			if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left)
 			{
-				i++;
-				X += 50;
-				lampa.sprite[i].setTexture(texture);
-				lampa.sprite[i].setPosition(X, Y);
 				
 
-				lampa.MouseReleazed(pixelPos);
+				lampa.MouseReleazed(pixelPos);				//call F in class
+
+				if (isObjectTransportToSetka && isBuferEmpty) // Create new sprite if peremistuvsya z bufera
+				{
+					i++;										//dodayem new element
+					//X += 50;
+					lampa.sprite[i].setTexture(texture);
+					lampa.sprite[i].setPosition(lampa.startCoor[i].x, lampa.startCoor[i].y);// 20 525
+					
+					isBuferEmpty = false;
+					isObjectTransportToSetka = false;
+				}
 				//				rezustor.MouseReleazed(pixelPos);
 				//				wire.MouseReleazed(pixelPos);
 			}
@@ -192,7 +204,7 @@ int main()
 		//KOD
 		//		position = Mouse::getPosition(window);
 
-		lampa.update(pixelPos);
+		lampa.update(pixelPos);				//peremichae object za mushkoy
 		//		rezustor.update(pixelPos);
 		//		wire.update(pixelPos);
 
