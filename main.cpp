@@ -8,6 +8,10 @@ const int H = 11;
 const int W = 15;
 const int size = 45;
 int count = 0;
+int i = 0;
+int X= 20, Y=525;
+
+Texture texture, TecRezustor, WireTex;
 
 String TileMap[H] = {
 
@@ -25,93 +29,122 @@ String TileMap[H] = {
 };
 //ENDtest
 
+void initialization()
+{
+	texture.loadFromFile("images/lampa1.png");
+	TecRezustor.loadFromFile("images/rezustor.png");
+	WireTex.loadFromFile("images/providG.png");
+}
+
+
 
 class ELEMENT {
 public:
 
-	Sprite sprite;
-	Vector2f startCoor;
+	Sprite sprite[H*W];
+	Vector2f startCoor[H*W];// = new Vector2f[H*W];
 
-	bool isMove = 0, isClicked = 0;
+	bool isMove[H*W], isClicked[H*W];
 
-	float dX, dY;
-
-
-	ELEMENT(Texture &image) {
-		startCoor.x = 20 + count;
-		startCoor.y = 525;
-		count += 50;
+	float dX[H*W], dY[H*W];
 
 
-		sprite.setTexture(image);
-		sprite.setScale(1, 1);
-		sprite.setPosition(startCoor.x, startCoor.y);
+	ELEMENT() {
+		startCoor[i].x = 20 + count;
+		startCoor[i].y = 525;
+//		count += 50;
 
-		isMove = false;
-		dX = 0;
-		dY = 0;
+
+		sprite[i].setTexture(texture);
+		sprite[i].setScale(1, 1);
+		sprite[i].setPosition(startCoor[i].x, startCoor[i].y);
+
+		isMove[i] = false;
+		
 	}
 
 	void MousePressed(Vector2i pixelPos)
 	{
-		if (sprite.getGlobalBounds().contains(pixelPos.x, pixelPos.y))//è ïðè ýòîì êîîðäèíàòà êóðñîðà ïîïàäàåò â ñïðàéò
+		for (int j = 0; j <= i; j++)
 		{
-			std::cout << "isClicked!\n";//âûâîäèì â êîíñîëü ñîîáùåíèå îá ýòîì
-			dX = pixelPos.x - sprite.getPosition().x;//äåëàåì ðàçíîñòü ìåæäó ïîçèöèåé êóðñîðà è ñïðàéòà.äëÿ êîððåêòèðîâêè íàæàòèÿ
-			dY = pixelPos.y - sprite.getPosition().y;//òîæå ñàìîå ïî èãðåêó
-			isMove = true;//ìîæåì äâèãàòü ñïðàéò		
-			isClicked = true;
+			if (sprite[j].getGlobalBounds().contains(pixelPos.x, pixelPos.y))//
+			{
+				std::cout << "isClicked!\t";//auaiaei a eiinieu niiauaiea ia yoii
+				dX[j] = pixelPos.x - sprite[j].getPosition().x;//aaeaai ?aciinou ia?ao iiceoeae eo?ni?a e ni?aeoa.aey ei??aeoe?iaee ia?aoey
+				dY[j] = pixelPos.y - sprite[j].getPosition().y;//oi?a naiia ii ea?aeo
+				isMove[j] = true;//ii?ai aaeaaou ni?aeo		
+				isClicked[j] = true;
+			}
 		}
 	}
 
 	void MouseReleazed(Vector2i pixelPos)
 	{
-		isMove = false;
-		sprite.setColor(Color::White);
+		for (int j = 0; j <= i; j++)
+		{
+			isMove[j] = false;
 
-		for (int countY = 0; countY < size*H; countY += size)
-			for (int countX = 0; countX < size*W; countX += size)
-			{
-				if (IntRect(countX, countY, size, size).contains(pixelPos.x, pixelPos.y) &&
-					isClicked)
+			sprite[j].setColor(Color::White);
+
+			for (int countY = 0; countY < size*H; countY += size)
+				for (int countX = 0; countX < size*W; countX += size)
 				{
+					if (IntRect(countX, countY, size, size).contains(pixelPos.x, pixelPos.y) &&
+						isClicked[j])
+					{
 
-					startCoor.x = countX;
-					startCoor.y = countY;
-					isClicked = false;
-					break;
+						startCoor[j].x = countX;
+						startCoor[j].y = countY;
+						isClicked[j] = false;
+						break;
+					}
+
 				}
-
-			}
+		}
 	}
 
 
 	void update(Vector2i pixelPos)
 	{
-		if (isMove)
+		for (int j = 0; j <= i; j++)
 		{
-			sprite.setColor(Color::Yellow);//êðàñèì ñïðàéò â æîâòèé 
-			sprite.setPosition(pixelPos.x - dX, pixelPos.y - dY);//äâèãàåì ïî Y
-																				   //p.sprite.setPosition(pos.x - dX, pos.y - dY);//ìîæíî è òàê íàïèñàòü,åñëè ó âàñ íåòó õ è ó â êëàññå èãðîêà
-		}
-		else
-		{
-			sprite.setPosition(startCoor.x, startCoor.y);
+			if (isMove[j])
+			{
+
+				sprite[j].setColor(Color::Yellow);//e?anei ni?aeo a ?iaoee 
+				sprite[j].setPosition(pixelPos.x - dX[j] + j*20, pixelPos.y - dY[j] + j*20);//aaeaaai ii Y
+																 //p.sprite.setPosition(pos.x - dX, pos.y - dY);//ii?ii e oae iaienaou,anee o aan iaoo o e o a eeanna ea?iea
+			}
+			
+			else
+			{
+
+				sprite[j].setPosition(startCoor[j].x + j*20, startCoor[j].y + j*20);
+
+			}
 		}
 	}
 };
+/*
 
+struct elementS{
+elementS(Texture &image)
+{
+ELEMENT lampa(image);
+}
+};
+*/
 
 int main()
 {
 	RenderWindow window(sf::VideoMode(800, 600), "Drag & Drop");
 
-	Texture texture, TecRezustor;
-	texture.loadFromFile("images/lampa1.png");
-	TecRezustor.loadFromFile("images/rezustor.png");
+	initialization();
 
-	ELEMENT lampa(texture);
-	ELEMENT rezustor(TecRezustor);
+
+	ELEMENT lampa;// = new ELEMENT[300];
+	//	ELEMENT rezustor(TecRezustor);
+	//	ELEMENT wire(WireTex);
 
 	Vector2i pixelPos;
 	//test
@@ -133,14 +166,21 @@ int main()
 			if (event.type == Event::MouseButtonPressed && event.mouseButton.button == Mouse::Left)
 			{
 				lampa.MousePressed(pixelPos);
-				rezustor.MousePressed(pixelPos);
+				//				rezustor.MousePressed(pixelPos);
+				//				wire.MousePressed(pixelPos);
 			}
 
 			if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left)
 			{
+				i++;
+				X += 50;
+				lampa.sprite[i].setTexture(texture);
+				lampa.sprite[i].setPosition(X, Y);
 				
+
 				lampa.MouseReleazed(pixelPos);
-				rezustor.MouseReleazed(pixelPos);
+				//				rezustor.MouseReleazed(pixelPos);
+				//				wire.MouseReleazed(pixelPos);
 			}
 		}
 
@@ -149,7 +189,8 @@ int main()
 		//		position = Mouse::getPosition(window);
 
 		lampa.update(pixelPos);
-		rezustor.update(pixelPos);
+		//		rezustor.update(pixelPos);
+		//		wire.update(pixelPos);
 
 
 		window.clear(Color::White);
@@ -168,10 +209,86 @@ int main()
 				window.draw(rectangle);
 			}
 		//Etest
-		window.draw(rezustor.sprite);
-		window.draw(lampa.sprite);
+		//		window.draw(rezustor.sprite);
+	
+		for (int j = 0; j <= i; j++)
+		{
+			window.draw(lampa.sprite[j]);
+		}
+			
+		//	window.draw(lampa.sprite);
+		//window.draw(lampa.sprite);
+
+		//		window.draw(wire.sprite);
 		window.display();
 	}
 
 	return 0;
 }
+
+
+
+
+
+/*
+#include <SFML/Graphics.hpp>
+#include <iostream>
+
+using namespace sf;
+
+int x = 0, y = 0, i = 0;
+
+int main()
+{
+	RenderWindow window(sf::VideoMode(800, 600), "Drag & Drop");
+
+	Texture texture;
+	texture.loadFromFile("images/rezustor.png");
+
+	Sprite *s = new Sprite[3000000];
+	s[i].setTexture(texture);
+	s[i].setPosition(x, y);
+	i++;
+	
+	x += 50;
+	y += 50;
+
+	while (window.isOpen())
+	{
+
+		Event event;
+		while (window.pollEvent(event))
+		{
+			if (event.type == Event::Closed)
+				window.close();
+
+			if (event.type == Event::MouseButtonPressed && event.mouseButton.button == Mouse::Left)
+			{
+				std::cout << "isClicked\n";
+				//Sprite s[];
+				s[i].setTexture(texture);
+				s[i].setPosition(x, y);
+				i++;
+				x += 50;
+				y += 50;
+			}
+
+		}
+		
+		window.clear(Color::White);
+
+		for (int j = 0; j < i; j++)
+		{
+
+			window.draw(s[j]);
+		}
+
+		window.display();
+	}
+
+	return 0;
+}
+
+*/
+
+
