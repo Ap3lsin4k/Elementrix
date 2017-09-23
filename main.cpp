@@ -50,17 +50,21 @@ public:
 
 
 	ELEMENT() {
-		startCoor[i].x = 20 + count;
-		startCoor[i].y = 525;
-//		count += 50;
-
+		for (int j = 0; j<=165; j++)
+		{
+			startCoor[j].x = 20;
+			startCoor[j].y = 525;
+			//		count += 50;
+		}
 
 		sprite[i].setTexture(texture);
 		sprite[i].setScale(1, 1);
 		sprite[i].setPosition(startCoor[i].x, startCoor[i].y);
 
-		isMove[i] = false;
-		
+		for (int j = 0; j <= 165; j++)
+		{
+			isMove[j] = false;
+		}
 	}
 
 	void MousePressed(Vector2i pixelPos)
@@ -119,7 +123,7 @@ public:
 			else
 			{
 
-				sprite[j].setPosition(startCoor[j].x + j*20, startCoor[j].y + j*20);
+				sprite[j].setPosition(startCoor[j].x, startCoor[j].y);
 
 			}
 		}
