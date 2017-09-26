@@ -8,9 +8,9 @@ const int H = 11;
 const int W = 15;
 const int size = 45;
 int count = 0;
-int i = 0;
-bool isObjectTransportToSetka = false;
-bool isBuferEmpty = true;
+int i[2]{ 0 };
+bool isObjectTransportToSetka[2]{ false };
+bool isBuferEmpty[2]{ true };
 
 Texture texture, TecRezustor, WireTex;
 
@@ -50,32 +50,56 @@ public:
 	float dX[H*W], dY[H*W];
 
 
-	ELEMENT() {
-		for (int j = 0; j<=165; j++)
-		{
-			startCoor[j].x = 20;
-			startCoor[j].y = 525;
-			//		count += 50;
-		}
+	ELEMENT(int index) {// schob vidriznyatu elementu
+		switch (index) {///Debug
+		case 0:
 
-		sprite[i].setTexture(texture);
-		sprite[i].setScale(1, 1);
-		sprite[i].setPosition(startCoor[i].x, startCoor[i].y);
-		isBuferEmpty = false;
+			for (int j = 0; j <= 165; j++)		//-----------------
+			{									//-----------------
+				startCoor[j].x = 20;			//initializatio 
+				startCoor[j].y = 525;			//start position
+				//		count += 50;			//-----------------
+			}									//-----------------
 
-		for (int j = 0; j <= 165; j++)
-		{
-			isMove[j] = false;
+			sprite[ i[0] ].setTexture(texture);
+			sprite[ i[0] ].setScale(1, 1);
+			sprite[ i[0] ].setPosition(startCoor[ i[0] ].x, startCoor[ i[0] ].y);
+			isBuferEmpty[ 0 ] = false;
+
+			for (int j = 0; j <= 165; j++)
+			{
+				isMove[j] = false;
+			}
+			break;
+		case 1:
+
+			for (int j = 0; j <= 165; j++)		//-----------------
+			{									//-----------------
+				startCoor[j].x = 20 + 50;		//initializatio 
+				startCoor[j].y = 525;			//start position
+												//		count += 50;			//-----------------
+			}									//-----------------
+
+			sprite[i[1]].setTexture(TecRezustor);
+			sprite[i[1]].setScale(1, 1);
+			sprite[i[1]].setPosition(startCoor[i[1]].x, startCoor[i[1]].y);
+			isBuferEmpty[1] = false;
+
+			for (int j = 0; j <= 165; j++)
+			{
+				isMove[j] = false;
+			}
+
 		}
 	}
 
-	void MousePressed(Vector2i pixelPos)
+	void MousePressed(Vector2i pixelPos, int index)
 	{
-		for (int j = 0; j <= i; j++)
+		for (int j = 0; j <= i[index]; j++)
 		{
 			if (sprite[j].getGlobalBounds().contains(pixelPos.x, pixelPos.y))//
 			{
-		//		std::cout << "isClicked!\t";//auaiaei a eiinieu niiauaiea ia yoii
+				//		std::cout << "isClicked!\t";//auaiaei a eiinieu niiauaiea ia yoii
 				dX[j] = pixelPos.x - sprite[j].getPosition().x;//aaeaai ?aciinou ia?ao iiceoeae eo?ni?a e ni?aeoa.aey ei??aeoe?iaee ia?aoey
 				dY[j] = pixelPos.y - sprite[j].getPosition().y;//oi?a naiia ii ea?aeo
 				isMove[j] = true;//ii?ai aaeaaou ni?aeo		
@@ -84,9 +108,9 @@ public:
 		}
 	}
 
-	void MouseReleazed(Vector2i pixelPos)
+	void MouseReleazed(Vector2i pixelPos, int index)
 	{
-		for (int j = 0; j <= i; j++)
+		for (int j = 0; j <= i[index]; j++)
 		{
 			isMove[j] = false;
 
@@ -98,13 +122,13 @@ public:
 					if (IntRect(countX, countY, size, size).contains(pixelPos.x, pixelPos.y) &&
 						isClicked[j])
 					{
-						if(startCoor[j].x == 20 && startCoor[j].y == 525) isBuferEmpty = true; //bufer pusteyet
-						else isBuferEmpty = false;
+						if(startCoor[j].x == 20 && startCoor[j].y == 525) isBuferEmpty[index] = true; //bufer pusteyet
+						else isBuferEmpty[index] = false;
 
 						startCoor[j].x = countX;
 						startCoor[j].y = countY;
 						isClicked[j] = false;
-						isObjectTransportToSetka = true; //yakcho sprite peremistuvsya z bufera
+						isObjectTransportToSetka[index] = true; //yakcho sprite peremistuvsya z bufera
 						
 						break;
 					}
@@ -114,10 +138,10 @@ public:
 	}
 
 
-	void update(Vector2i pixelPos)
+	void update(Vector2i pixelPos, int index)
 	{
 		std::cout << i;
-		for (int j = 0; j <= i; j++)
+		for (int j = 0; j <= i[index]; j++)
 		{
 			if (isMove[j])
 			{
@@ -151,8 +175,8 @@ int main()
 	initialization(); // initi. texture
 
 
-	ELEMENT lampa;// = new ELEMENT[300]; ///
-	//	ELEMENT rezustor(TecRezustor);
+	ELEMENT lampa(0);// = new ELEMENT[300]; ///
+	ELEMENT rezustor(1);
 	//	ELEMENT wire(WireTex);
 
 	Vector2i pixelPos;		// mouse Position
@@ -174,7 +198,8 @@ int main()
 			//LMB Pressed
 			if (event.type == Event::MouseButtonPressed && event.mouseButton.button == Mouse::Left)	
 			{
-				lampa.MousePressed(pixelPos);				//call F in class
+				lampa.MousePressed(pixelPos, 0);				//call F in class
+				rezustor.MousePressed(pixelPos, 1);
 				//				rezustor.MousePressed(pixelPos);
 				//				wire.MousePressed(pixelPos);
 			}
@@ -183,17 +208,28 @@ int main()
 			{
 				
 
-				lampa.MouseReleazed(pixelPos);				//call F in class
+				lampa.MouseReleazed(pixelPos, 0);				//call F in class
+				rezustor.MouseReleazed(pixelPos, 1);
 
-				if (isObjectTransportToSetka && isBuferEmpty) // Create new sprite if peremistuvsya z bufera
+				if (isObjectTransportToSetka[0] && isBuferEmpty[0]) // Create new sprite if peremistuvsya z bufera	///Debug
 				{
-					i++;										//dodayem new element
+					i[0]++;										//dodayem new element
 					//X += 50;
-					lampa.sprite[i].setTexture(texture);
-					lampa.sprite[i].setPosition(lampa.startCoor[i].x, lampa.startCoor[i].y);// 20 525
+					lampa.sprite[i[0]].setTexture(texture);
+					lampa.sprite[i[0]].setPosition(lampa.startCoor[i[0]].x, lampa.startCoor[i[0]].y);// 20 525
 					
-					isBuferEmpty = false;
-					isObjectTransportToSetka = false;
+					isBuferEmpty[0] = false;
+					isObjectTransportToSetka[0] = false;
+				}
+				if (isObjectTransportToSetka[1] && isBuferEmpty[1]) // Create new sprite if peremistuvsya z bufera	///Debug
+				{
+					i[1]++;										//dodayem new element
+																//X += 50;
+					lampa.sprite[i[1]].setTexture(texture);
+					lampa.sprite[i[1]].setPosition(lampa.startCoor[i[0]].x, lampa.startCoor[i[0]].y);// 20 525
+
+					isBuferEmpty[1] = false;
+					isObjectTransportToSetka[0] = false;
 				}
 				//				rezustor.MouseReleazed(pixelPos);
 				//				wire.MouseReleazed(pixelPos);
@@ -204,8 +240,8 @@ int main()
 		//KOD
 		//		position = Mouse::getPosition(window);
 
-		lampa.update(pixelPos);				//peremichae object za mushkoy
-		//		rezustor.update(pixelPos);
+		lampa.update(pixelPos, 0);//peremichae object za mushkoy
+		rezustor.update(pixelPos, 1);
 		//		wire.update(pixelPos);
 
 
@@ -227,9 +263,13 @@ int main()
 		//Etest
 		//		window.draw(rezustor.sprite);
 	
-		for (int j = 0; j <= i; j++)
+		for (int j = 0; j <= i[0]; j++)///Debug
 		{
 			window.draw(lampa.sprite[j]);
+		}
+		for (int j = 0; j <= i[0]; j++)///Debug
+		{
+			window.draw(rezustor.sprite[j]);
 		}
 			
 		//	window.draw(lampa.sprite);
